@@ -1,13 +1,21 @@
 import "../App.css";
-import React, { useState } from "react";
+import React, { useState ,useEffect} from "react";
 
 const Com = () => {
   const [Userdata, setUserdata] = useState({
+    id: "",
     user: "",
     comment: "",
     emoji: "", 
   });
   const [displaydata,setdisplaydata]=useState({})
+  const [storage,setstorage]=useState([])
+
+  useEffect(()=>{
+    const storeddata =JSON.parse(localStorage.getItem("data")) || [];
+     setstorage(storeddata)
+  }, [])
+
   const datachange = (e) => {
     setUserdata({ ...Userdata, [e.target.name]: e.target.value });
   };
@@ -15,17 +23,31 @@ const Com = () => {
   const handleform = (e) => {
     e.preventDefault();
     console.log(Userdata);
-    setdisplaydata(Userdata)
+
+    const newID = {...Userdata, id: parseInt(Math.random() * 10000)};
+
+
+    setstorage([...storage, newID])
+    
     setUserdata({
+      id: "",
       user: "",
       comment: "",
       emoji: "", 
     });
   };
-
+  
   const handlemood = (emoji) => {
     setUserdata((prev) => ({ ...prev, emoji })); 
   };
+  
+  useEffect(() => {
+    
+    console.log("STORAGE", storage);
+    localStorage.setItem("data", JSON.stringify(storage));
+  },[storage]);
+
+  
 
   return (
     <>
@@ -47,6 +69,7 @@ const Com = () => {
           <label htmlFor="name" className="text-start block">
             User name:
           </label>
+          <input type="text" name="id" value={Userdata.id} onChange={datachange} hidden />
           <input
             type="text"
             placeholder="Enter username"
@@ -70,9 +93,17 @@ const Com = () => {
       </form>
 
       <div className="mt-7 bg-slate-600 rounded-2xl p-5 text-white">
-        <h3 className="font-bold text-2xl ">{displaydata.user}</h3>
-        <h5>{displaydata.comment}</h5>
-        <h4>{displaydata.emoji}</h4>
+      {
+        storage.map((items , index)=>(<>
+        <div key={index} className="flex justify-between items-center mt-5"></div>
+         <h1 className="font-bold">{items.user}</h1>
+         <h1 className="font-bold">{items.comment}</h1>
+         <h1 className="font-bold">{items.emoji}</h1>
+         
+        </>
+         
+        ))
+} 
       </div>
     </>
   );
